@@ -29,6 +29,7 @@ public class ThriftPigLoader<M extends TBase<?, ?>> extends LzoBaseLoadFunc {
   private ProjectedThriftTupleFactory<M> tupleTemplate;
 
   public ThriftPigLoader(String thriftClassName) {
+    System.err.println("EB_DEBUG: Creating loader for thrift class " + thriftClassName);
     typeRef = PigUtil.getThriftTypeRef(thriftClassName);
   }
 

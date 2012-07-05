@@ -112,6 +112,7 @@ public class TStructDescriptor {
   }
 
   private void build(Class<? extends TBase<?, ?>> tClass) {
+    System.err.println("EB_DEBUG: [TStructDescriptor]The class to check is " + tClass.getName());
     Map<? extends TFieldIdEnum, FieldMetaData> fieldMap = FieldMetaData.getStructMetaDataMap(tClass);
     Field[] arr = new Field[fieldMap.size()];
 

@@ -1,6 +1,7 @@
 package com.twitter.elephantbird.util;
 
 import java.nio.ByteBuffer;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -32,8 +33,40 @@ public class ThriftUtils {
    * Verify that clazz is a Thrift class. i.e. is a subclass of TBase
    */
   private static void verifyAncestry(Class<?> tClass) {
-    if (!TBase.class.isAssignableFrom(tClass)) {
-      throw new ClassCastException(tClass.getName() + " is not a Thrift class");
+    String fullMsg = "EB_DEBUG: " + Calendar.getInstance().getTimeInMillis();
+    System.err.println(fullMsg);
+
+    String msg1 = "EB_DEBUG: Checking classload for " + tClass.getName();
+    System.err.println(msg1);
+    fullMsg += msg1 + "\n";
+
+    String msg2 = "EB_DEBUG: TBase classloader is " + TBase.class.getClassLoader().getClass().getName()
+      + " hashcode " + TBase.class.getClassLoader().hashCode() + " classHashCode " + TBase.class.hashCode();
+    System.err.println(msg2);
+    fullMsg += msg2 + "\n";
+
+    for (Class<?> klass : tClass.getInterfaces()) {
+      ClassLoader cl = klass.getClassLoader();
+      String msg = "EB_DEBUG: " + tClass.getName() + " implements " + klass.getName();
+      if (cl == null) {
+        msg += " without a classloader";
+      } else {
+        msg += " with classloader " + cl.getClass().getName() + " hashcode " + cl.hashCode() + " classHashCode " + klass.hashCode();
+      }
+      System.err.println(msg);
+      fullMsg += msg + "\n";
+    }
+    // fetch TBase class from the same classloader as tClass
+    try {
+      Class<?> tbaseClass = Class.forName(TBase.class.getName(), false, tClass.getClassLoader());
+      if (!tbaseClass.isAssignableFrom(tClass)) {
+        System.err.println("EB_DEBUG: Failed test for class " + tClass.getName());
+        throw new ClassCastException(tClass.getName() + " is not a Thrift class " + fullMsg);
+      } else {
+        System.err.println("EB_DEBUG: Passed test for class " + tClass.getName());
+      }
+    } catch (ClassNotFoundException e) {
+      throw new RuntimeException(e); // not expected.
     }
   }
 
